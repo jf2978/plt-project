@@ -1,14 +1,26 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
+(* First we start of with what look like type patterns. But they're actually sort of like constructors (I think they're called variants).
+They're defining categories where each pattern corresponds to a type name (must be uppercase) and you can
+specify how it'll be represented in OCaml e.g. ("5+5" is represented as the triplet Binop(5,+,5) *)
+
+(* SOURCE: https://www.cs.cornell.edu/courses/cs3110/2013sp/lectures/lec04-types/lec04.html *)
+
+(* Binary Operator types*)
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or
 
+(* Unary Operator types*)
 type uop = Neg | Not
 
+(* Data types *)
 type typ = Int | Bool | Float | Void
 
+(* Assignment bind type. Basically a tuple of type (typ, string) e.g. "int x" would be the pair (Int, "x") *)
 type bind = typ * string
 
+(* Expression pattern types *)
+(* Noexpr is there to make the pattern match exhaustive; so it catches the non-expression that was matched *)
 type expr =
     Literal of int
   | Fliteral of string
@@ -20,6 +32,7 @@ type expr =
   | Call of string * expr list
   | Noexpr
 
+(* Statement pattern types *)
 type stmt =
     Block of stmt list
   | Expr of expr
@@ -28,6 +41,9 @@ type stmt =
   | For of expr * expr * expr * stmt
   | While of expr * stmt
 
+(* Function Declaration Struct *)
+(* I thought this was a map/dictionary at first. An instantiation would look something like ...
+let x = {typ = Int; fname = "gcd" ...} using an equal sign instead for each value *)
 type func_decl = {
     typ : typ;
     fname : string;
@@ -36,6 +52,7 @@ type func_decl = {
     body : stmt list;
   }
 
+(* Program type. It's a pair with (a) list of variables (typ, string) and (b) list of function declarations *)
 type program = bind list * func_decl list
 
 (* Pretty-printing functions *)
