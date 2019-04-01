@@ -2,6 +2,7 @@
 
 open Ast
 
+(* Essentially the same as the ast, but is after each node is semantically checked: see semant.ml *)
 type sexpr = typ * sx
 and sx =
     SLiteral of int
@@ -48,7 +49,7 @@ let rec string_of_sexpr (t, e) =
   | SCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoexpr -> ""
-				  ) ^ ")"				     
+				  ) ^ ")"
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->

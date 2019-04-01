@@ -8,7 +8,7 @@ specify how it'll be represented in OCaml e.g. ("5+5" is represented as the trip
 
 (* Binary Operator types*)
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or | Mod
 
 (* Unary Operator types*)
 type uop = Neg | Not
@@ -70,6 +70,7 @@ let string_of_op = function
   | Geq -> ">="
   | And -> "&&"
   | Or -> "||"
+  | Mod -> "%"
 
 let string_of_uop = function
     Neg -> "-"
