@@ -2,9 +2,11 @@
 
 { open Microcparse }
 
+(* Regular expression let assignments *)
 let digit = ['0' - '9']
 let digits = digit+
 
+(* Pattern matching rules to go from char stream => token. Tokens are defined in microcparse.mly *)
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*"     { comment lexbuf }           (* Comments *)
