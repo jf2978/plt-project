@@ -3,6 +3,7 @@ int main()
   print(1 + 2);
   print(1 - 2);
   print(1 * 2);
+  print(7 % 3);
   print(100 / 2);
   print(99);
   printb(1 == 2);
@@ -23,6 +24,6 @@ int main()
   print(99);
   printb(1 >= 2);
   printb(1 >= 1);
-  printb(2 >= 1); 
+  printb(2 >= 1);
   return 0;
 }

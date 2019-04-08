@@ -2,10 +2,12 @@
 
 open Ast
 
+(* Essentially the same as the ast, but is after each node is semantically checked: see semant.ml *)
 type sexpr = typ * sx
 and sx =
     SLiteral of int
   | SFliteral of string
+  | SSliteral of string
   | SBoolLit of bool
   | SId of string
   | SBinop of sexpr * op * sexpr
@@ -40,6 +42,7 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SFliteral(l) -> l
+  | SSliteral(l) -> l
   | SId(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
@@ -48,7 +51,7 @@ let rec string_of_sexpr (t, e) =
   | SCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoexpr -> ""
-				  ) ^ ")"				     
+				  ) ^ ")"
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->
