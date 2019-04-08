@@ -27,18 +27,22 @@ let translate (globals, functions) =
   let the_module = L.create_module context "MicroC" in
 
   (* Get types from the context *)
+  (* Add TYPES in their LLVM representation here as let expressions *)
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
+  and string_t   = L.pointer_type (L.i8_type context)
   and void_t     = L.void_type   context in
 
   (* Return the LLVM type for a MicroC type *)
+  (* Add the AST type -> LLVM type pattern match here *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
     | A.Float -> float_t
     | A.Void  -> void_t
+    | A.String -> string_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -50,6 +54,7 @@ let translate (globals, functions) =
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
 
+  (* Add built-in functions in their LLVM representation here *)
   let printf_t : L.lltype =
       L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func : L.llvalue =
@@ -77,6 +82,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and string_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -109,9 +115,10 @@ let translate (globals, functions) =
 
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
-	SLiteral i  -> L.const_int i32_t i
+	      SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
+      | SSliteral l -> L.build_global_stringptr l "tmp" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
@@ -154,18 +161,19 @@ let translate (globals, functions) =
 	  ) e1' e2' "tmp" builder
       | SUnop(op, ((t, _) as e)) ->
           let e' = expr builder e in
+          (* Add built-in function with L.build_call here *)
 	  (match op with
 	    A.Neg when t = A.Float -> L.build_fneg
 	  | A.Neg                  -> L.build_neg
           | A.Not                  -> L.build_not) e' "tmp" builder
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
-	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
-	    "printf" builder
+	  L.build_call printf_func [| int_format_str ; (expr builder e) |] "printf" builder
       | SCall ("printbig", [e]) ->
 	  L.build_call printbig_func [| (expr builder e) |] "printbig" builder
       | SCall ("printf", [e]) ->
-	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
-	    "printf" builder
+	  L.build_call printf_func [| float_format_str ; (expr builder e) |] "printf" builder
+      | SCall ("printstr", [e]) ->
+	  L.build_call printf_func [| string_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
