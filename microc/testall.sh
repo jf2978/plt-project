@@ -5,12 +5,19 @@
 #  Compile, run, and check the output of each expected-to-work test
 #  Compile and check the error of each expected-to-fail test
 
+
+# Path to the LLVM interpreter
 # Path to the LLVM interpreter
 LLI="/usr/bin/lli-6.0"
 #LLI="/usr/local/opt/llvm/bin/lli"
+#LLI="/usr/local/opt/llvm/bin/lli"
 
 # Path to the LLVM compiler
+
 LLC="/usr/bin/llc-6.0"
+#LLC="/usr/local/opt/llvm/bin/llc"
+
+
 
 # Path to the C compiler
 CC="cc"
