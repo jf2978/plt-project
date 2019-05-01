@@ -64,8 +64,8 @@ formals_opt:
 
 /* Sequence of formal arguments*/
 formal_list:
-    typ ID                   { [($1,$2)]     }
-  | formal_list COMMA typ ID { ($3,$4) :: $1 }
+    typ ID                   { [($1,$2,Noexpr)]     }
+  | formal_list COMMA typ ID { ($3,$4,Noexpr) :: $1 }
 
 /* Parsed type => Ast typ */
 typ:
@@ -82,8 +82,8 @@ vdecl_list:
 
 /* Variable Declaration literal pattern*/
 vdecl:
-   typ ID SEMI { ($1, $2) }
-   /* typ ID EQ expr SEMI*/
+     typ ID SEMI { ($1, $2, Noexpr) }
+   | typ ID ASSIGN expr SEMI { ($1, $2, Assign($2, $4)) }
 
 
 stmt_list:

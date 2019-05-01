@@ -1,7 +1,6 @@
 int main()
 {
-  string s;
-  s = "hello world";
+  string s = "mixed var decl";
 
   printstr(s);
   return 0;

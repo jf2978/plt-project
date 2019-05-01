@@ -16,9 +16,6 @@ type uop = Neg | Not
 (* Data types *)
 type typ = Int | Bool | Float | Void | String
 
-(* Assignment bind type. Basically a tuple of type (typ, string) e.g. "int x" would be the pair (Int, "x") *)
-type bind = typ * string
-
 (* Expression pattern types *)
 (* Noexpr is there to make the pattern match exhaustive; so it catches the non-expression that was matched *)
 type expr =
@@ -32,6 +29,9 @@ type expr =
   | Assign of string * expr
   | Call of string * expr list
   | Noexpr
+
+(* Assignment bind type. Basically a tuple of type (typ, string) e.g. "int x" would be the pair (Int, "x") *)
+type bind = typ * string * expr
 
 (* Statement pattern types *)
 type stmt =
@@ -112,11 +112,13 @@ let string_of_typ = function
   | Void -> "void"
   | String -> "string"
 
-let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
+let string_of_vdecl (t, id, e) = string_of_typ t ^ " " ^ id ^ string_of_expr e ^ ";\n"
+
+let string_of_formals (_, id, _) = id
 
 let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
-  fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
+  fdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_formals fdecl.formals) ^
   ")\n{\n" ^
   String.concat "" (List.map string_of_vdecl fdecl.locals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
