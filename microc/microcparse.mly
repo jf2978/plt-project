@@ -83,7 +83,7 @@ vdecl_list:
 /* Variable Declaration literal pattern*/
 vdecl:
    typ ID SEMI { ($1, $2) }
-   (* typ ID EQ expr SEMI*)
+   /* typ ID EQ expr SEMI*/
 
 
 stmt_list:
