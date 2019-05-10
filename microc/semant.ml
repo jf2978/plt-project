@@ -181,8 +181,8 @@ let check (globals, functions) =
     in (* body of check_function *)
     { styp = func.typ;
       sfname = func.fname;
-      sformals = func.formals;
-      slocals  = func.locals;
+      sformals = List.map (fun (t,n,v) -> (t,n, expr v)) func.formals;
+      slocals  = List.map (fun (t,n,v) -> (t,n, expr v)) func.locals;
       sbody = match check_stmt (Block func.body) with
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))

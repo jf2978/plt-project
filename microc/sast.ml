@@ -16,6 +16,8 @@ and sx =
   | SCall of string * sexpr list
   | SNoexpr
 
+type sbind = typ * string * sexpr
+
 type sstmt =
     SBlock of sstmt list
   | SExpr of sexpr
@@ -27,8 +29,8 @@ type sstmt =
 type sfunc_decl = {
     styp : typ;
     sfname : string;
-    sformals : bind list;
-    slocals : bind list;
+    sformals : sbind list;
+    slocals : sbind list;
     sbody : sstmt list;
   }
 
@@ -67,11 +69,13 @@ let rec string_of_sstmt = function
       string_of_sexpr e3  ^ ") " ^ string_of_sstmt s
   | SWhile(e, s) -> "while (" ^ string_of_sexpr e ^ ") " ^ string_of_sstmt s
 
+let string_of_svdecl (t, id, e) = string_of_typ t ^ " " ^ id ^ string_of_sexpr e ^ ";\n"
+
 let string_of_sfdecl fdecl =
   string_of_typ fdecl.styp ^ " " ^
   fdecl.sfname ^ "(" ^ String.concat ", " (List.map string_of_formals fdecl.sformals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.slocals) ^
+  String.concat "" (List.map string_of_svdecl fdecl.slocals) ^
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
