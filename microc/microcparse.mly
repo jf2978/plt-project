@@ -5,9 +5,10 @@ open Ast
 %}
 
 /* Token declarations. The tokens with a <type> indicate the ones with additional data, e.g. BLIT has an OCaml boolean associated with it */
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN MODULO
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN MODULO LBRACKET RBRACKET
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING
+%token MAT
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
@@ -74,6 +75,8 @@ typ:
   | FLOAT  { Float }
   | VOID   { Void  }
   | STRING { String }
+  /* integer matrix format: mat[heigt][width] variable_name =  */
+  | MAT LBRACKET INTLIT RBRACKET LBRACKET INTLIT RBRACKET { Mat($3, $6) } 
 
 /* Variable Declaration sequence */
 vdecl_list:
@@ -130,6 +133,7 @@ expr:
   | NOT expr         { Unop(Not, $2)          }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
+  | LBRACKET mat_lit RBRACKET { MatLit(List.rev $2) }
   | LPAREN expr RPAREN { $2                   }
 
 /* Optional arguments used in an expr (Call type).*/
@@ -145,3 +149,19 @@ args_opt:
 args_list:
     expr                    { [$1] }
   | args_list COMMA expr { $3 :: $1 }
+
+
+
+
+mat_lit:
+    lit_list                        { [$1] }
+    | mat_lit LBRACKET lit_list RBRACKET        { $3 :: $1 }
+
+lit_list:
+    lit                             { [$1] }
+    | lit_list COMMA lit            { $1 @ [$3] }
+
+lit:
+    INTLIT                          { IntLit($1) }
+    | FLOATLIT                      { FloatLit($1) }
+    | ID  { Id($1) }

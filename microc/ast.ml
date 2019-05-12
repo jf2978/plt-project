@@ -15,6 +15,7 @@ type uop = Neg | Not
 
 (* Data types *)
 type typ = Int | Bool | Float | Void | String
+		| Mat of typ * int * int
 
 (* Expression pattern types *)
 (* Noexpr is there to make the pattern match exhaustive; so it catches the non-expression that was matched *)
@@ -23,6 +24,7 @@ type expr =
   | Fliteral of string
   | Sliteral of string
   | BoolLit of bool
+  | MatLit of string list list
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
@@ -111,6 +113,7 @@ let string_of_typ = function
   | Float -> "float"
   | Void -> "void"
   | String -> "string"
+  | Mat(i1, j1) -> "Mat("^ string_of_int i1 ^ ", " ^ string_of_int j1 ^ ")"
 
 let string_of_vdecl (t, id, e) = string_of_typ t ^ " " ^ id ^ string_of_expr e ^ ";\n"
 
