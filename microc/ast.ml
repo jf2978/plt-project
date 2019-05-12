@@ -15,7 +15,7 @@ type uop = Neg | Not
 
 (* Data types *)
 type typ = Int | Bool | Float | Void | String
-		| Mat of typ * int * int
+		| Mat of int * int
 
 (* Expression pattern types *)
 (* Noexpr is there to make the pattern match exhaustive; so it catches the non-expression that was matched *)
