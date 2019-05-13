@@ -14,8 +14,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 type uop = Neg | Not
 
 (* Data types *)
-type typ = Int | Bool | Float | Void | String
-		| Mat of int * int
+type typ = Int | Bool | Float | Void | String | List | Mat
 
 (* Expression pattern types *)
 (* Noexpr is there to make the pattern match exhaustive; so it catches the non-expression that was matched *)
@@ -24,7 +23,8 @@ type expr =
   | Fliteral of string
   | Sliteral of string
   | BoolLit of bool
-  | MatLit of string list list
+  | ListLit of expr list
+  | MatLit of expr list list
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
@@ -93,6 +93,7 @@ let rec string_of_expr = function
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
+  | _ -> "test"
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -113,7 +114,8 @@ let string_of_typ = function
   | Float -> "float"
   | Void -> "void"
   | String -> "string"
-  | Mat(i1, j1) -> "Mat("^ string_of_int i1 ^ ", " ^ string_of_int j1 ^ ")"
+  | Mat -> "mat"
+  | List -> "list"
 
 let string_of_vdecl (t, id, e) = string_of_typ t ^ " " ^ id ^ string_of_expr e ^ ";\n"
 

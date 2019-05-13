@@ -7,11 +7,11 @@ open Ast
 /* Token declarations. The tokens with a <type> indicate the ones with additional data, e.g. BLIT has an OCaml boolean associated with it */
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN MODULO LBRACKET RBRACKET
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING
-%token MAT
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING MAT LIST
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
+%token LISTLIT MATLIT
 %token EOF
 
 /* Entry point is the rule called 'program'.*/
@@ -75,8 +75,8 @@ typ:
   | FLOAT  { Float }
   | VOID   { Void  }
   | STRING { String }
-  /* integer matrix format: mat[heigt][width] variable_name =  */
-  | MAT LBRACKET INTLIT RBRACKET LBRACKET INTLIT RBRACKET { Mat($3, $6) } 
+  | LIST { List }
+  | MAT { Mat }
 
 /* Variable Declaration sequence */
 vdecl_list:
@@ -133,6 +133,7 @@ expr:
   | NOT expr         { Unop(Not, $2)          }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
+  | LBRACKET lit_list RBRACKET { ListLit(List.rev $2) }
   | LBRACKET mat_lit RBRACKET { MatLit(List.rev $2) }
   | LPAREN expr RPAREN { $2                   }
 
@@ -146,22 +147,18 @@ args_opt:
 /* args_list = used in function calls e.g. function(a,b) where a and b are IDs of variables (no types used in function call)*/
 /* formals_list = used in function declaration e.g. int gcd(int a, int b) where we have types for our parameters */
 /* vdecl_list = used to separate declarations/lines of code that are separated by semicolons */
+
 args_list:
     expr                    { [$1] }
   | args_list COMMA expr { $3 :: $1 }
 
-
-
-
 mat_lit:
-    lit_list                        { [$1] }
-    | mat_lit LBRACKET lit_list RBRACKET        { $3 :: $1 }
+    LBRACKET lit_list RBRACKET { [ List.rev $2 ] }
+  | mat_lit COMMA LBRACKET lit_list RBRACKET  { $4 :: $1 }
 
-lit_list:
-    lit                             { [$1] }
-    | lit_list COMMA lit            { $1 @ [$3] }
+lit_list :
+    lit { [ $1 ] }
+  | lit_list COMMA lit { $3 :: $1 }
 
 lit:
-    INTLIT                          { IntLit($1) }
-    | FLOATLIT                      { FloatLit($1) }
-    | ID  { Id($1) }
+    LITERAL { Literal($1) }

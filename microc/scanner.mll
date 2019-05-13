@@ -50,7 +50,8 @@ rule token = parse
 | "string" { STRING }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
-| "mat" { MAT }
+| "mat"    { MAT }
+| "list"   { LIST }
 | '"'  { SLIT(str (Buf.create 100) lexbuf) }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
