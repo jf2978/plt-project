@@ -43,6 +43,7 @@ let translate (globals, functions) =
     | A.Float -> float_t
     | A.Void  -> void_t
     | A.String -> string_t
+    | A.Char -> i8_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -119,6 +120,7 @@ let translate (globals, functions) =
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SSliteral l -> L.build_global_stringptr l "tmp" builder
+      | SChlit    l -> L.const_int i8_t (int_of_char l)
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
