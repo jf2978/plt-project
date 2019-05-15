@@ -121,6 +121,17 @@ let translate (globals, functions) =
       | SFliteral l -> L.const_float_of_string float_t l
       | SSliteral l -> L.build_global_stringptr l "tmp" builder
       | SChlit    l -> L.const_int i8_t (int_of_char l)
+      | SListLit  l -> let s = L.build_array_alloca i32_t (L.const_int i32_t ((List.length l) + 1)) "tmp" builder in
+                       let t = Array.of_list [(L.const_int i32_t 0)] in
+                       let ptr = L.build_gep s t "tmp" builder in
+                        ignore(L.build_store (L.const_int i32_t (List.length l)) ptr builder);
+                        for i = 1 to ((List.length l)) do
+                            let t = Array.of_list [L.const_int i32_t i] in
+                            let ptr = L.build_gep s t "tmp" builder in
+                              ignore(L.build_store (expr builder (List.nth l (i-1))) ptr builder)
+                            done;
+                            s
+      | SMatLit m -> 
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
