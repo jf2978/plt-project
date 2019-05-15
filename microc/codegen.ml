@@ -33,6 +33,7 @@ let translate (globals, functions) =
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
   and string_t   = L.pointer_type (L.i8_type context)
+  and array_t    = L.array_type
   and void_t     = L.void_type   context in
 
   (* Return the LLVM type for a MicroC type *)
@@ -44,6 +45,8 @@ let translate (globals, functions) =
     | A.Void  -> void_t
     | A.String -> string_t
     | A.Char -> i8_t
+    | A.List -> array_t i32_t 10
+    | A.Mat -> array_t (array_t i32_t 10) 10
   in
 
   (* Create a map of global variables after creating each *)
@@ -67,7 +70,7 @@ let translate (globals, functions) =
       L.declare_function "printbig" printbig_t the_module in
 
   (* Define each function (arguments and return type) so we can
-     call it even before we've created its body *)
+     call it even before we've created its  let printMatrix - = L.function_type i32_t [|] body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
     let function_decl m fdecl =
       let name = fdecl.sfname
@@ -131,7 +134,13 @@ let translate (globals, functions) =
                               ignore(L.build_store (expr builder (List.nth l (i-1))) ptr builder)
                             done;
                             s
-      | SMatLit m -> 
+      | SMatLit m ->  let rows = List.length m in
+                      let cols = List.length (List.hd m) in
+                      let typ = array_t (array_t i32_t cols) rows in
+                      let i32_list = List.map (List.map (expr builder)) m in
+                      let list_of_arrs = List.map Array.of_list i32_list in
+                      let arrs_of_arrs = Array.of_list (List.map (L.const_array typ) list_of_arrs) in
+                      L.const_array (array_t typ (List.length (List.hd m))) arrs_of_arrs
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
