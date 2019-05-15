@@ -15,7 +15,7 @@ type uop = Neg | Not
 
 (* Data types *)
 
-type typ = Int | Bool | Float | Void | String | Char |List | Mat
+type typ = Int | Bool | Float | Void | String | Char | List | Mat
 
 
 (* Expression pattern types *)
@@ -86,7 +86,7 @@ let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | Fliteral(l) -> l
   | Sliteral(l) -> l
-  | Chlit(l) -> Char.escaped l 
+  | Chlit(l) -> Char.escaped l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
