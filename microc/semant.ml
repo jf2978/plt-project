@@ -91,6 +91,11 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
+  (*  let check_mat_dim m = (* check matrix dimensions *)
+      let len = List.length (List.hd m) in
+        if List.for_all (fun e -> (List.length e) = len) then true else raise (Failure ("matrix dimensions are not consistent"))
+    in *)
+
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
         Literal  l -> (Int, SLiteral l)
@@ -98,6 +103,22 @@ let check (globals, functions) =
       | Sliteral l -> (String, SSliteral l)
       | Chlit l -> (Char, SChlit l)
       | BoolLit l  -> (Bool, SBoolLit l)
+      | ListLit l ->
+        let (ht, _) = expr (List.hd l) in
+          let checked_list = List.map (fun e -> if fst (expr e) = ht then expr e else raise (Failure ("list types are not consistent"))) l in
+            (List, SListLit checked_list)
+      | MatLit m ->
+      (* check matrix dimensions *)
+        let check_mat_dim =
+          let len = List.length (List.hd m) in
+            List.for_all (fun l -> List.length l = len) in
+
+      (* check matrix types *)
+        let (t, _) = expr (List.hd (List.hd m)) in
+          let checked_mat = if check_mat_dim m
+            then (List.map (fun l -> List.map (fun e -> if fst (expr e) = t then expr e else raise (Failure ("list types are not consistent"))) l) m)
+            else raise (Failure ("matrix dimensions are not consistent")) in
+              (Mat, SMatLit checked_mat);
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex ->

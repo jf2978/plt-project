@@ -9,6 +9,8 @@ and sx =
   | SFliteral of string
   | SSliteral of string
   | SChlit of char
+  | SListLit of sexpr list
+  | SMatLit of sexpr list list
   | SBoolLit of bool
   | SId of string
   | SBinop of sexpr * op * sexpr
@@ -47,6 +49,8 @@ let rec string_of_sexpr (t, e) =
   | SFliteral(l) -> l
   | SSliteral(l) -> l
   | SChlit(l) -> Char.escaped l
+  | SListLit(_) -> "<stringified_list>"
+  | SMatLit(_) -> "<stringified_matrix>"
   | SId(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
