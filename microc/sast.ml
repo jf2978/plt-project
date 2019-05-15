@@ -8,6 +8,7 @@ and sx =
     SLiteral of int
   | SFliteral of string
   | SSliteral of string
+  | SChlit of char
   | SListLit of sexpr list
   | SMatLit of sexpr list list
   | SBoolLit of bool
@@ -47,6 +48,7 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(false) -> "false"
   | SFliteral(l) -> l
   | SSliteral(l) -> l
+  | SChlit(l) -> Char.escaped l
   | SListLit(_) -> "<stringified_list>"
   | SMatLit(_) -> "<stringified_matrix>"
   | SId(s) -> s

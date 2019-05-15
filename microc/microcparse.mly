@@ -7,11 +7,14 @@ open Ast
 /* Token declarations. The tokens with a <type> indicate the ones with additional data, e.g. BLIT has an OCaml boolean associated with it */
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN MODULO LBRACKET RBRACKET
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING MAT LIST
+
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING CHAR MAT LIST
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
+%token <char> CHLIT
 %token LISTLIT MATLIT
+
 %token EOF
 
 /* Entry point is the rule called 'program'.*/
@@ -75,8 +78,10 @@ typ:
   | FLOAT  { Float }
   | VOID   { Void  }
   | STRING { String }
+  | CHAR   { Char }
   | LIST { List }
   | MAT { Mat }
+
 
 /* Variable Declaration sequence */
 vdecl_list:
@@ -115,6 +120,7 @@ expr:
   | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
   | SLIT             { Sliteral($1)           }
+  | CHLIT            { Chlit($1)              }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
