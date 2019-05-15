@@ -24,7 +24,7 @@ let translate (globals, functions) =
 
   (* Create the LLVM compilation module into which
      we will generate code *)
-  let the_module = L.create_module context "MicroC" in
+  let the_module = L.create_module context "Jasper" in
 
   (* Get types from the context *)
   (* Add TYPES in their LLVM representation here as let expressions *)
@@ -34,6 +34,7 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and string_t   = L.pointer_type (L.i8_type context)
   and array_t    = L.array_type
+  and pointer_t  = L.pointer_type
   and void_t     = L.void_type   context in
 
   (* Return the LLVM type for a MicroC type *)
@@ -68,6 +69,10 @@ let translate (globals, functions) =
       L.function_type i32_t [| i32_t |] in
   let printbig_func : L.llvalue =
       L.declare_function "printbig" printbig_t the_module in
+  let print_matrix_t : L.lltype =
+      L.function_type i32_t [| L.pointer_type i8_t; i32_t; i32_t|] in
+  let print_matrix_func : L.llvalue =
+      L.declare_function "printm" print_matrix_t the_module in
 
   (* Define each function (arguments and return type) so we can
      call it even before we've created its  let printMatrix - = L.function_type i32_t [|] body *)
@@ -115,6 +120,11 @@ let translate (globals, functions) =
        Check local names first, then global names *)
     let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n global_vars
+    in
+
+    let get_mptr mat builder =
+        let arr_ptr = L.build_in_bounds_gep mat ([| L.const_int i32_t 0; L.const_int i32_t 0|]) "build_in_bounds_gep" builder in
+            L.build_bitcast arr_ptr (pointer_t i8_t) "mat_ptr" builder
     in
 
     (* Construct code for an expression; return its value *)
@@ -196,6 +206,8 @@ let translate (globals, functions) =
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall ("printstr", [e]) ->
 	  L.build_call printf_func [| string_format_str ; (expr builder e) |] "printf" builder
+      | SCall ("printm", [e]) ->
+    L.build_call print_matrix_func [|(get_mptr (expr builder e) builder); (L.const_int i32_t 10); (L.const_int i32_t 10)|] "printm" builder
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
