@@ -1,4 +1,4 @@
-(* Ocamllex scanner for MicroC *)
+(* Ocamllex scanner for Jasper *)
 
 { open Microcparse
 
@@ -71,3 +71,5 @@ and str buf = parse
 and comment = parse
   "*/" { token lexbuf }
 | _    { comment lexbuf }
+
+  (* Signed by Jeffrey Fabian, Mohammad Ibrahim, Justin Zwick, and Kevin Mejia *)

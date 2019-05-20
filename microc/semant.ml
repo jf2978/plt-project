@@ -1,4 +1,4 @@
-(* Semantic checking for the MicroC compiler *)
+(* Semantic checking for the Jasper compiler *)
 
 open Ast
 open Sast
@@ -211,3 +211,5 @@ let check (globals, functions) =
       | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
   in (globals, List.map check_function functions)
+
+  (* Signed by Jeffrey Fabian, Mohammad Ibrahim, Justin Zwick, and Kevin Mejia *)

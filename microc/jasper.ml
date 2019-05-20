@@ -1,4 +1,4 @@
-(* Top-level of the MicroC compiler: scan & parse the input,
+(* Top-level of the Jasper compiler: scan & parse the input,
    check the resulting AST and generate an SAST from it, generate LLVM IR,
    and dump the module *)
 
@@ -30,3 +30,5 @@ let () =
     | Compile -> let m = Codegen.translate sast in
 	Llvm_analysis.assert_valid_module m;
 	print_string (Llvm.string_of_llmodule m)
+
+    (* Signed by Jeffrey Fabian, Mohammad Ibrahim, Justin Zwick, and Kevin Mejia *)
